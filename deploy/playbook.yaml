@@ -209,7 +209,7 @@
       pip:
         requirements: /home/{{ansible_ssh_user}}/{{app}}/requirements.txt
         virtualenv: /home/{{ansible_ssh_user}}/{{app}}/venv
-        virtualenv_command: 'python3 -m venv'
+        virtualenv_command: python3 -m venv
 
 # Configure application systemd service and nginx
 - hosts: webservers
@@ -222,7 +222,6 @@
         dest: /etc/systemd/system/{{app}}.service
 
     - name: Start gunicorn service
-      become: true
       systemd:
         name: '/home/maxwel/automate-flask-app-with-ansible/deploy/projectServices.service'
         state: restarted
