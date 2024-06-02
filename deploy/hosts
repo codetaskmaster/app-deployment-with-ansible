@@ -1,0 +1,11 @@
+# [sites]
+# 192.168.56.101
+
+[webservers]
+192.168.56.101
+
+[webservers:vars]
+# Local variables for Ansible playbooks
+ansible_ssh_user=maxwel
+github_user=codetaskmaster
+app=automate-flask-app-with-ansible # github repo name

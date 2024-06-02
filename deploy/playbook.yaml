@@ -1,0 +1,262 @@
+# - hosts: 192.168.58.101
+#   user: maxwel
+#   tasks:
+#     - name: Update and Upgrade apt packages
+#       become: true
+#       apt:
+#         upgrade: yes
+#         update_cache: yes
+#     - name: Install the package "python3.12-venv"
+#       ansible.builtin.apt:
+#         name: python3.12-venv
+
+#     - name: Get repository from git and update
+#       ansible.builtin.git:
+#         repo: 'https://github.com/codetaskmaster/automate-flask-app-with-ansible.git'
+#         dest: /home/project
+#         clone: yes
+#         update: yes
+
+#     - name: Install specified python requirements in indicated virtualenv
+#       ansible.builtin.pip:
+#         virtualenv_command: python3 -m venv
+#         requirements: /home/project/requirements.txt
+#         virtualenv: /home/project/venv
+
+#     - name: Copy service file with owner and permsissions to server
+#       ansible.builtin.copy:
+#         src: projectService.services
+#         dest: /etc/systemd/system/
+#         owner: maxwel
+#         group: sudo
+#         mode: '0777'
+
+#     - name: Start gunicorn service
+#       systemd:
+#         name: project
+#         state: restarted
+#         daemon_reload: yes
+
+#     - name: Enable gunicorn service
+#       systemd:
+#         name: project
+#         enabled: true
+
+#     - name: Install nginx
+#       ansible.builtin.apt:
+#         name: nginx
+
+#     - name: Install UFW firewall
+#       apt: name=ufw update_cache=yes state=latest
+
+#     - name: allow ssh
+#       community.general.ufw:
+#         state: enabled
+#       loop:
+#         - OpenSSH
+#         - Nginx Full
+
+#     - name: enable UFW
+#       community.general.ufw:
+#         state: reloaded
+
+#     - name: Copy server block configuration file to server
+#       ansible.builtin.copy:
+#         src: projectRequests
+#         dest: /etc/nginx/sites-available/project
+#         owner: maxwel
+#         group: sudo
+#         mode: '0777'
+
+#     - name: Creating a symlink between sites-available and sites-enabled directories
+#       ansible.builtin.file:
+#         src: /etc/nginx/sites-available/project
+#         dest: /etc/nginx/sites-enabled/project
+#         state: link
+
+#     - name: Start nginx
+#       systemd:
+#         name: nginx
+#         state: restarted
+
+# - hosts: 192.168.56.101
+#   vars:
+#     git_repo: 'https://github.com/codetaskmaster/automate-flask-app-with-ansible.git'
+#     remote_project_path: /home/project/
+#     requirements_path: /home/project/requirements.txt
+#     venv_path: /home/project/venv
+#     service_file: projectServices.service
+#     nginx_config: projectRequests
+#   user: maxwel
+#   tasks:
+#     - name: Update and upgrade apt packages
+#       become: true
+#       apt:
+#         upgrade: yes
+#         update_cache: yes
+
+#     - name: Install the package "python3.12-venv"
+#       become: true
+#       ansible.builtin.apt:
+#         name: python3.12-venv
+
+#     - name: Get repository from git and update locally
+#       become: true
+#       ansible.builtin.git:
+#         repo: '{{git_repo}}'
+#         dest: '{{remote_project_path}}'
+#         clone: yes
+#         update: yes
+
+#     - name: Install specified python requirements in indicated virtualenv
+#       become: true
+#       ansible.builtin.pip:
+#         virtualenv_command: python3 -m venv
+#         requirements: '{{requirements_path}}'
+#         virtualenv: '{{venv_path}}'
+
+#     - name: Copy service file with owner and permissions to server
+#       become: true
+#       ansible.builtin.copy:
+#         src: '{{service_file}}'
+#         dest: /etc/systemd/system/
+#         owner: maxwel
+#         group: sudo
+#         mode: '0777'
+
+#     - name: Start gunicorn service
+#       become: true
+#       systemd:
+#         name: '{{service_file}}'
+#         state: restarted
+#         daemon_reload: yes
+
+#     - name: Enable gunicorn service
+#       become: true
+#       systemd:
+#         name: '{{service_file}}'
+#         enabled: true
+
+#     - name: Install nginx
+#       become: true
+#       ansible.builtin.apt:
+#         name: nginx
+
+#     - name: allow ssh
+#       become: true
+#       community.general.ufw:
+#         name: '{{item}}'
+#         rule: allow
+#       loop:
+#         - OpenSSH
+#         - Nginx Full
+
+#     - name: enable UFW
+#       become: true
+#       community.general.ufw:
+#         state: reloaded
+
+#     - name: Copy server block configuration file to server
+#       become: true
+#       ansible.builtin.copy:
+#         src: '{{nginx_config}}'
+#         dest: /etc/nginx/sites-available/{{nginx_config}}
+#         owner: maxwel
+#         group: sudo
+#         mode: '0777'
+
+#     - name: Creating a symlink between sites-available and sites-enabled directories
+#       become: true
+#       ansible.builtin.file:
+#         src: /etc/nginx/sites-available/{{nginx_config}}
+#         dest: /etc/nginx/sites-enabled/{{nginx_config}}
+#         state: link
+
+#     - name: Start nginx
+#       become: true
+#       systemd:
+#         name: nginx
+#         state: restarted
+
+# Install system apt packages
+- hosts: webservers
+  become: true
+  become_method: sudo
+
+  tasks:
+    - name: Update Cache
+      apt: name=software-properties-common state=present update_cache=yes cache_valid_time=43200
+    # - name: Disable lighttpd
+    #   systemd: name=lighttpd state=stopped enabled=no
+    - name: Install Packages
+      apt: name={{item}} state=present
+      with_items:
+        - tree
+        - python3-pip
+        - python3-dev
+        - nginx
+
+# Install the application, note: don't use become sudo
+
+- hosts: webservers
+  tasks:
+    - name: Clone github repository
+      git:
+        repo: 'https://github.com/codetaskmaster/automate-flask-app-with-ansible.git'
+        dest: /home/{{ansible_ssh_user}}/{{app}}
+        update: yes # Do a git pull if the repo already exists
+    - name: Install modules in a virtualenv
+      pip:
+        requirements: /home/{{ansible_ssh_user}}/{{app}}/requirements.txt
+        virtualenv: /home/{{ansible_ssh_user}}/{{app}}/venv
+        virtualenv_command: 'python3 -m venv'
+
+# Configure application systemd service and nginx
+- hosts: webservers
+  become: true
+  become_method: sudo
+  tasks:
+    - name: template systemd service config
+      copy:
+        src: projectServices.service
+        dest: /etc/systemd/system/{{app}}.service
+
+    - name: start systemd app service
+      systemd: name={{app}}/deploy/projectServices.service state=restarted enabled=yes
+
+    - name: template nginx site config
+      template:
+        src: projectRequests
+        dest: /etc/nginx/sites-available/{{app}}
+
+    - name: remove default nginx site config
+      file: path=/etc/nginx/sites-enabled/default state=absent
+
+    - name: enable nginx site
+      file:
+        src: /etc/nginx/sites-available/{{app}}
+        dest: /etc/nginx/sites-available/default
+        state: link
+        force: yes
+
+    - name: restart nginx
+      systemd: name=nginx state=restarted enabled=yes
+
+    - name: open firewall for nginx
+      ufw:
+        rule: allow
+        name: Nginx Full
+
+# Run a quick test to verify the site is working
+- hosts: webservers
+  tasks:
+    - name: get url
+      get_url:
+        url: http://{{inventory_hostname}}
+        dest: /tmp/index.html
+    - name: read html
+      shell: cat /tmp/index.html
+      register: html_contents
+    - name: check for string in html
+      when: html_contents.stdout.find('hello') != -1
+      debug: msg="success!"
