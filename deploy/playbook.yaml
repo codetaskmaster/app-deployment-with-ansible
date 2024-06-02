@@ -222,8 +222,7 @@
         dest: /etc/systemd/system/{{app}}.service
 
     - name: start systemd app service
-      systemd: name={{app}}/deploy/projectServices.service state=restarted enabled=yes
-      daemon_reload: yes
+      systemd: name={{app}}/deploy/projectServices.service state=restarted enabled=yes daemon_reload=yes
 
     - name: template nginx site config
       template:
