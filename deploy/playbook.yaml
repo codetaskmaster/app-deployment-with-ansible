@@ -226,7 +226,7 @@
         name: '/home/maxwel/automate-flask-app-with-ansible/deploy/projectServices.service'
         state: restarted
         daemon_reload: yes
-        enabled: yes
+        # enabled: yes
 
     # - name: start systemd app service
     #   systemd: name={{app}}/deploy/projectServices.service state=restarted enabled=yes daemon_reload=yes
