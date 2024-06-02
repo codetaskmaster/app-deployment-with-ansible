@@ -224,7 +224,7 @@
     - name: Start gunicorn service
       become: true
       systemd:
-        name: '{{app}}/deploy/projectServices.service'
+        name: '/home/maxwel/automate-flask-app-with-ansible/deploy/projectServices.service'
         state: restarted
         daemon_reload: yes
         enabled: yes
