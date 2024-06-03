@@ -184,16 +184,6 @@
   become_method: sudo
 
   tasks:
-    # - name: update cache
-    #   apt: name=software-properties-common state=present update_cache=yes cache_valid_time=43200
-    # - name: install packages
-    #   apt: name={{item}} state=present
-    #   with_items:
-    #     - tree
-    #     - python3-pip
-    #     - python3-dev
-    #     - nginx
-
     - name: update and upgrade apt packages
       apt:
         upgrade: yes
@@ -206,31 +196,35 @@
           - python3.12-venv
           - nginx
 
-      # ansible.builtin.apt:
-      #   name: { { item } }
-      #   state: present
-      # with_items:
-      #   - tree
-      #   - python3.12-venv
-      #   - nginx
-
 # Install the application, note: don't use become sudo
-
 - hosts: webservers
   tasks:
-    - name: clone github repository
-      git:
-        repo: 'https://github.com/codetaskmaster/automate-flask-app-with-ansible.git'
-        dest: /home/{{ansible_ssh_user}}/{{app}}
+    - name: clone git respository and update locally
+      ansible.builtin.git:
+        repo: '{{git_repo}}'
+        dest: '{{remote_project_path}}'
+        clone: yes
         update: yes # Do a git pull if the repo already exists
+
+    # - name: clone github repository
+    #   git:
+    #     repo: 'https://github.com/codetaskmaster/automate-flask-app-with-ansible.git'
+    #     dest: /home/{{ansible_ssh_user}}/{{app}}
+    #     update: yes # Do a git pull if the repo already exists
+
     - name: install modules in a virtualenv
       pip:
-        requirements: /home/{{ansible_ssh_user}}/{{app}}/requirements.txt
-        virtualenv: /home/{{ansible_ssh_user}}/{{app}}/venv
         virtualenv_command: python3 -m venv
-        # virtualenv_python: python3.10
+        requirements: '{{requirements_path}}'
+        virtualenv: '{{venv_path}}'
 
-# Configure application systemd service and nginx
+    # - name: install modules in a virtualenv
+    #   pip:
+    #     requirements: /home/{{ansible_ssh_user}}/{{app}}/requirements.txt
+    #     virtualenv: /home/{{ansible_ssh_user}}/{{app}}/venv
+    #     virtualenv_command: python3 -m venv
+
+# Configure application systemd gunicorn service and nginx server
 - hosts: webservers
   become: true
   become_method: sudo

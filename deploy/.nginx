@@ -2,6 +2,6 @@ server{
     listen 80;
     location /{
         include proxy_params;
-        proxy_pass http://unix:/home/{{ansible_ssh_user}}/{{app}}/{{app}}.sock;
+        proxy_pass http://unix:{{remote_project_path}}/{{app}}.sock;
     }
 }
