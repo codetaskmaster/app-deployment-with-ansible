@@ -184,7 +184,7 @@
   become_method: sudo
 
   tasks:
-    - name: update Cache
+    - name: update cache
       apt: name=software-properties-common state=present update_cache=yes cache_valid_time=43200
     # - name: Disable lighttpd
     #   systemd: name=lighttpd state=stopped enabled=no
@@ -246,16 +246,25 @@
         state: link
         force: yes
 
-    # - name: restart nginx
-    #   systemd: name=nginx state=restarted enabled=yes
-
     - name: restart nginx server
       systemd:
         name: nginx
         state: restarted
         enabled: yes
 
-    - name: open firewall for nginx
-      ufw:
+    - name: allow SSH and nginx through the firewall(Uncomplicated Firewall:UFW)
+      community.general.ufw:
+        name: '{{item}}'
         rule: allow
-        name: Nginx Full
+      loop:
+        - OpenSSH
+        - Nginx Full
+
+    - name: reload UFW configurations
+      community.general.ufw:
+        state: reloaded
+
+    # - name: open firewall for nginx
+    #   ufw:
+    #     rule: allow
+    #     name: Nginx Full
