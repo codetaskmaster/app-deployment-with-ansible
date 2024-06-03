@@ -184,11 +184,11 @@
   become_method: sudo
 
   tasks:
-    - name: Update Cache
+    - name: update Cache
       apt: name=software-properties-common state=present update_cache=yes cache_valid_time=43200
     # - name: Disable lighttpd
     #   systemd: name=lighttpd state=stopped enabled=no
-    - name: Install Packages
+    - name: install packages
       apt: name={{item}} state=present
       with_items:
         - tree
@@ -200,16 +200,17 @@
 
 - hosts: webservers
   tasks:
-    - name: Clone github repository
+    - name: clone github repository
       git:
         repo: 'https://github.com/codetaskmaster/automate-flask-app-with-ansible.git'
         dest: /home/{{ansible_ssh_user}}/{{app}}
         update: yes # Do a git pull if the repo already exists
-    - name: Install modules in a virtualenv
+    - name: install modules in a virtualenv
       pip:
         requirements: /home/{{ansible_ssh_user}}/{{app}}/requirements.txt
         virtualenv: /home/{{ansible_ssh_user}}/{{app}}/venv
-        virtualenv_command: python3 -m venv
+        # virtualenv_command: python3 -m venv
+        virtualenv_python: python3.10
 
 # Configure application systemd service and nginx
 - hosts: webservers
@@ -219,17 +220,17 @@
     - name: template systemd service config
       copy:
         src: projectServices.service
-        dest: /etc/systemd/system/{{app}}.service
+        dest: /etc/systemd/system/{{app}}/deploy/projectServices.service
 
-    - name: Start gunicorn service
-      systemd:
-        name: '/home/maxwel/automate-flask-app-with-ansible/deploy/projectServices.service'
-        state: restarted
-        daemon_reload: yes
-        # enabled: yes
+    # - name: Start gunicorn service
+    #   systemd:
+    #     name: '/home/maxwel/automate-flask-app-with-ansible/deploy/projectServices.service'
+    #     state: restarted
+    #     daemon_reload: yes
+    #     enabled: yes
 
-    # - name: start systemd app service
-    #   systemd: name={{app}}/deploy/projectServices.service state=restarted enabled=yes daemon_reload=yes
+    - name: start systemd app service
+      systemd: name={{app}}/deploy/projectServices.service state=restarted enabled=yes
 
     - name: template nginx site config
       template:
@@ -242,7 +243,7 @@
     - name: enable nginx site
       file:
         src: /etc/nginx/sites-available/{{app}}
-        dest: /etc/nginx/sites-available/default
+        dest: /etc/nginx/sites-enabled/default
         state: link
         force: yes
 
