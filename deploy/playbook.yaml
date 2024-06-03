@@ -209,8 +209,8 @@
       pip:
         requirements: /home/{{ansible_ssh_user}}/{{app}}/requirements.txt
         virtualenv: /home/{{ansible_ssh_user}}/{{app}}/venv
-        # virtualenv_command: python3 -m venv
-        virtualenv_python: python3.10
+        virtualenv_command: python3 -m venv
+        # virtualenv_python: python3.10
 
 # Configure application systemd service and nginx
 - hosts: webservers
