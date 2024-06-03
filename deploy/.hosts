@@ -1,6 +1,3 @@
-# [sites]
-# 192.168.56.101
-
 [webservers]
 192.168.56.101
 
@@ -8,10 +5,10 @@
 # Local variables for Ansible playbooks
 ansible_ssh_user=maxwel
 github_user=codetaskmaster
-app=automate-flask-app-with-ansible
+app=app-deployment-with-ansible
 service_file=.service
 nginx_config=.nginx
-git_repo=https://github.com/codetaskmaster/automate-flask-app-with-ansible.git
+git_repo=https://github.com/codetaskmaster/app-deployment-with-ansible.git
 remote_project_path=/home/{{ansible_ssh_user}}/{{app}}
 requirements_path={{remote_project_path}}/requirements.txt
 venv_path={{remote_project_path}}/venv
