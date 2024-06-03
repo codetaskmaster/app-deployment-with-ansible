@@ -234,16 +234,20 @@
         src: '{{nginx_config}}'
         dest: /etc/nginx/sites-available/{{app}}
 
-    # - name: remove default nginx site config
-    #   file: path=/etc/nginx/sites-enabled/default state=absent
-
     - name: remove default nginx site config
       ansible.builtin.file:
         path: /etc/nginx/sites-enabled/default
         state: absent
 
-    - name: enable nginx site
-      file:
+    # - name: enable nginx site
+    #   file:
+    #     src: /etc/nginx/sites-available/{{app}}
+    #     dest: /etc/nginx/sites-enabled/default
+    #     state: link
+    #     force: yes
+
+    - name: creating a symlink between nginx sites-available and nginx sites-enabled directories
+      ansible.builtin.file:
         src: /etc/nginx/sites-available/{{app}}
         dest: /etc/nginx/sites-enabled/default
         state: link
