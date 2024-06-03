@@ -217,6 +217,11 @@
   become: true
   become_method: sudo
   tasks:
+    - name: create the directory if it does not exist
+      ansible.builtin.file:
+        path: /etc/systemd/system/{{app}}/deploy
+        state: directory
+        mode: '0755'
     - name: template systemd service config
       copy:
         src: projectServices.service
