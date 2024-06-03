@@ -199,11 +199,12 @@
         upgrade: yes
         update_cache: yes
         cache_valid_time: 43200
+
     - name: install requisite packages
       ansible.builtin.apt:
-      pkg:
-        - python3.12-venv
-        - nginx
+        pkg:
+          - python3.12-venv
+          - nginx
 
       # ansible.builtin.apt:
       #   name: { { item } }
