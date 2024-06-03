@@ -184,17 +184,34 @@
   become_method: sudo
 
   tasks:
-    - name: update cache
-      apt: name=software-properties-common state=present update_cache=yes cache_valid_time=43200
-    # - name: Disable lighttpd
-    #   systemd: name=lighttpd state=stopped enabled=no
-    - name: install packages
-      apt: name={{item}} state=present
-      with_items:
-        - tree
-        - python3-pip
-        - python3-dev
+    # - name: update cache
+    #   apt: name=software-properties-common state=present update_cache=yes cache_valid_time=43200
+    # - name: install packages
+    #   apt: name={{item}} state=present
+    #   with_items:
+    #     - tree
+    #     - python3-pip
+    #     - python3-dev
+    #     - nginx
+
+    - name: update and upgrade apt packages
+      apt:
+        upgrade: yes
+        update_cache: yes
+        cache_valid_time: 43200
+    - name: install requisite packages
+      ansible.builtin.apt:
+      pkg:
+        - python3.12-venv
         - nginx
+
+      # ansible.builtin.apt:
+      #   name: { { item } }
+      #   state: present
+      # with_items:
+      #   - tree
+      #   - python3.12-venv
+      #   - nginx
 
 # Install the application, note: don't use become sudo
 
@@ -252,7 +269,7 @@
         state: restarted
         enabled: yes
 
-    - name: allow SSH and nginx through the firewall(Uncomplicated Firewall:UFW)
+    - name: allow SSH and nginx through the firewall (Uncomplicated Firewall:UFW)
       community.general.ufw:
         name: '{{item}}'
         rule: allow
@@ -260,11 +277,6 @@
         - OpenSSH
         - Nginx Full
 
-    - name: reload UFW configurations
+    - name: reloading UFW configurations
       community.general.ufw:
         state: reloaded
-
-    # - name: open firewall for nginx
-    #   ufw:
-    #     rule: allow
-    #     name: Nginx Full
