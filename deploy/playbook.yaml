@@ -229,18 +229,18 @@
         daemon_reload: yes
         enabled: yes
 
-    # - name: template nginx site config
-    #   template:
-    #     src: projectRequests
-    #     dest: /etc/nginx/sites-available/{{app}}
-
     - name: copy nginx server config file to remote host
       ansible.builtin.template:
         src: '{{nginx_config}}'
         dest: /etc/nginx/sites-available/{{app}}
 
+    # - name: remove default nginx site config
+    #   file: path=/etc/nginx/sites-enabled/default state=absent
+
     - name: remove default nginx site config
-      file: path=/etc/nginx/sites-enabled/default state=absent
+      ansible.builtin.file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
 
     - name: enable nginx site
       file:
