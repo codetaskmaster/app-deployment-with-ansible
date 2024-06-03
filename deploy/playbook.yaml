@@ -222,10 +222,17 @@
     #     path: /etc/systemd/system/{{app}}/deploy
     #     state: directory
     #     mode: '0755'
-    - name: template systemd service config
-      copy:
-        src: projectServices.service
+
+    # - name: template systemd service config
+    #   copy:
+    #     src: '{{service_file}}'
+    #     dest: /etc/systemd/system/{{app}}.service
+
+    - name: copy service file with owner permissions to server
+      ansible.builtin.copy:
+        src: '{{service_file}}'
         dest: /etc/systemd/system/{{app}}.service
+        # mode: '0777'
 
     # - name: Start gunicorn service
     #   systemd:

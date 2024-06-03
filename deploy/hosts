@@ -9,3 +9,4 @@
 ansible_ssh_user=maxwel
 github_user=codetaskmaster
 app=automate-flask-app-with-ansible
+service_file=.service
