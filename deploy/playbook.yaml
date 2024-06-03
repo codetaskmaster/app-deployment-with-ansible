@@ -229,12 +229,14 @@
         daemon_reload: yes
         enabled: yes
 
-    # - name: start systemd app service
-    #   systemd: name={{app}}.service state=restarted enabled=yes
+    # - name: template nginx site config
+    #   template:
+    #     src: projectRequests
+    #     dest: /etc/nginx/sites-available/{{app}}
 
-    - name: template nginx site config
-      template:
-        src: projectRequests
+    - name: copy nginx server block configuration file to server
+      ansible.builtin.copy:
+        src: '{{nginx_config}}'
         dest: /etc/nginx/sites-available/{{app}}
 
     - name: remove default nginx site config
