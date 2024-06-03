@@ -217,32 +217,20 @@
   become: true
   become_method: sudo
   tasks:
-    # - name: create the directory if it does not exist
-    #   ansible.builtin.file:
-    #     path: /etc/systemd/system/{{app}}/deploy
-    #     state: directory
-    #     mode: '0755'
-
-    # - name: template systemd service config
-    #   copy:
-    #     src: '{{service_file}}'
-    #     dest: /etc/systemd/system/{{app}}.service
-
-    - name: copy service file with owner permissions to server
+    - name: copy gunicorn service file to server
       ansible.builtin.copy:
         src: '{{service_file}}'
         dest: /etc/systemd/system/{{app}}.service
-        # mode: '0777'
 
-    # - name: Start gunicorn service
-    #   systemd:
-    #     name: '/home/maxwel/automate-flask-app-with-ansible/deploy/projectServices.service'
-    #     state: restarted
-    #     daemon_reload: yes
-    #     enabled: yes
+    - name: start gunicorn service
+      systemd:
+        name: '{{app}}.service'
+        state: restarted
+        daemon_reload: yes
+        enabled: yes
 
-    - name: start systemd app service
-      systemd: name={{app}}.service state=restarted enabled=yes
+    # - name: start systemd app service
+    #   systemd: name={{app}}.service state=restarted enabled=yes
 
     - name: template nginx site config
       template:
