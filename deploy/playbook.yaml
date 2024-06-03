@@ -235,7 +235,7 @@
     #     enabled: yes
 
     - name: start systemd app service
-      systemd: name=/home/maxwel/{{app}}/deploy/projectServices.service state=restarted enabled=yes
+      systemd: name=/home/maxwel/{{app}}/deploy/projectServices.service state=restarted enabled=yes daemon_reload=yes
 
     - name: template nginx site config
       template:
